@@ -1,39 +1,61 @@
 import os
 import shutil
-from sklearn.model_selection import train_test_split
+import random
 
+# Paths
+SOURCE_DIR = "/home/monyratanak/smart_bin_classification/dataset"
+DEST_DIR = "/home/monyratanak/smart_bin_classification/dataset_yolo"
 
-# paths
-src_dir = 'dataset'
-dst_dir = 'dataset_yolo'
+TRAIN_RATIO = 0.7
+VAL_RATIO = 0.2
+TEST_RATIO = 0.1
 
+random.seed(42)
 
-# Get all classes
-classes = [d for d in os.listdir(src_dir) if os.path.isdir(os.path.join(src_dir,d))]
+# Create split folders
+for split in ["train", "val", "test"]:
+    os.makedirs(os.path.join(DEST_DIR, split), exist_ok=True)
 
-# Create folder strucuture
+# Split per class
+for class_name in os.listdir(SOURCE_DIR):
+    class_path = os.path.join(SOURCE_DIR, class_name)
+    if not os.path.isdir(class_path):
+        continue
 
-for split in ['train', 'val']:
-    for cls in classes:
-        os.makedirs(os.path.join(dst_dir, split, cls), exist_ok=True)
+    images = os.listdir(class_path)
+    random.shuffle(images)
 
-# Split and copy images
-for cls in classes:
-    cls_path = os.path.join(src_dir, cls)
-    images = [f for f in os.listdir(cls_path) if f.endswith('.jpg')]
+    n_total = len(images)
+    n_train = int(n_total * TRAIN_RATIO)
+    n_val = int(n_total * VAL_RATIO)
 
-    train_imgs, val_imgs = train_test_split(images, test_size=0.2, random_state=42)
+    train_imgs = images[:n_train]
+    val_imgs = images[n_train:n_train + n_val]
+    test_imgs = images[n_train + n_val:]
 
+    # Create class folders
+    for split in ["train", "val", "test"]:
+        os.makedirs(os.path.join(DEST_DIR, split, class_name), exist_ok=True)
+
+    # Copy files
     for img in train_imgs:
-        shutil.copy(os.path.join(cls_path, img), os.path.join(dst_dir, 'train',cls, img))
+        shutil.copy(
+            os.path.join(class_path, img),
+            os.path.join(DEST_DIR, "train", class_name, img)
+        )
 
     for img in val_imgs:
-        shutil.copy(os.path.join(cls_path, img), os.path.join(dst_dir, 'val',cls, img))
+        shutil.copy(
+            os.path.join(class_path, img),
+            os.path.join(DEST_DIR, "val", class_name, img)
+        )
 
-    print(f"{cls} : {len(train_imgs)} train, {len(val_imgs)} val")
+    for img in test_imgs:
+        shutil.copy(
+            os.path.join(class_path, img),
+            os.path.join(DEST_DIR, "test", class_name, img)
+        )
 
-print("\nDataset ready!")
+    print(f"{class_name}: {len(train_imgs)} train | {len(val_imgs)} val | {len(test_imgs)} test")
 
-
-
-
+print("✅ Dataset split completed successfully!")
