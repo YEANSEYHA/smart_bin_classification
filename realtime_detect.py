@@ -17,6 +17,7 @@ model.classifier = nn.Sequential(
     nn.Dropout(0.3),
     nn.Linear(1280, 256),
     nn.ReLU(),
+    nn.Dropout(0.2),
     nn.Linear(256, len(class_names))
 )
 model.load_state_dict(checkpoint['model_state_dict'])
