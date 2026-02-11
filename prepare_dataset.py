@@ -3,8 +3,8 @@ import shutil
 import random
 
 # Paths
-SOURCE_DIR = "/home/monyratanak/smart_bin_classification/dataset"
-DEST_DIR = "yolo_cls3/weights/best.pt"
+SOURCE_DIR = "dataset"
+DEST_DIR = "dataset_split"
 
 TRAIN_RATIO = 0.7
 VAL_RATIO = 0.2
