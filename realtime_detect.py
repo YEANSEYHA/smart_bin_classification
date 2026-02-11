@@ -17,7 +17,7 @@ def find_camera():
     return available[0] if available else 0
 
 # Load YOLO classification model
-model = YOLO('yolo_cls3/weights/best.pt')
+model = YOLO('runs/classify/output/yolo_cls/weights/best.pt')
 class_names = model.names  # dict {0: 'class1', 1: 'class2', ...}
 
 # Class colors (BGR) — vivid, distinct per class
@@ -106,8 +106,8 @@ while True:
         predicted = int(probs.top1)
         conf = probs.top1conf.item()
 
-        stable_label = class_names[predicted]
         stable_confidence = conf * 100
+        stable_label = class_names[predicted] if stable_confidence >= 70 else "other"
         stable_color = get_color(stable_label, stable_confidence)
         last_prediction_time = now
 
